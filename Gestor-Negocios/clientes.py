@@ -1,5 +1,6 @@
 import csv
 import os
+from utils.validaciones import pedir_float, pedir_int, pedir_texto
 
 ARCHIVO_CLIENTES = "data/clientes.csv"
 

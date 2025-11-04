@@ -1,74 +1,60 @@
 import csv
 import os
+import json
+import uuid
+from utils.validaciones import pedir_float, pedir_int, pedir_texto
 
-ARCHIVO_PRODUCTOS = "data/productos.csv"
+# Crear carpeta data si no existe
+if not os.path.exists("data"):
+    os.makedirs("data")
 
-
-def leer_productos():
-    if not os.path.exists(ARCHIVO_PRODUCTOS):
-        return []
-    with open(ARCHIVO_PRODUCTOS, "r") as f:
-        reader = csv.DictReader(f)
-        return list(reader)
-
+# Crear archivo productos.json si no existe
+if not os.path.exists("data/productos.json"):
+    with open("data/productos.json", "w", encoding="utf-8") as archivo:
+        json.dump([], archivo, indent=4)
 
 def guardar_productos(productos):
-    with open(ARCHIVO_PRODUCTOS, "w", newline="") as f:
-        fieldnames = ["id", "nombre", "precio", "stock"]
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerows(productos)
-
+    with open("data/productos.json", "w", encoding="utf-8") as archivo:
+        json.dump(productos, archivo, indent=4, ensure_ascii=False)
 
 def generar_id():
-    productos = leer_productos()
-    if not productos:
-        return "1"
-    ultimo_id = max(int(p["id"]) for p in productos)
-    return str(ultimo_id + 1)
-
+    return str(uuid.uuid4())[:8]
 
 def agregar_producto():
-    nombre = input("📝 Nombre del producto: ").strip()
-    if not nombre:
-        print("❌ El nombre no puede estar vacío.")
-        return
+    print("\n🟩 AGREGAR NUEVO PRODUCTO 🟩")
+    
+    # 1️⃣ Pedir datos al usuario (con validaciones)
+    nombre = pedir_texto("Ingrese el nombre del producto: ")
+    precio = pedir_float("Ingrese el precio del producto: ")
+    stock = pedir_int("Ingrese la cantidad en stock: ")
 
-    productos = leer_productos()
-    if any(p["nombre"].lower() == nombre.lower() for p in productos):
-        print("⚠️ Ya existe un producto con ese nombre.")
-        return
-
-    try:
-        precio = float(input("💰 Precio: "))
-        stock = int(input("📦 Stock inicial: "))
-    except ValueError:
-        print("❌ Datos inválidos.")
-        return
-
+    # 2️⃣ Crear el nuevo producto
     nuevo = {
         "id": generar_id(),
         "nombre": nombre,
         "precio": precio,
         "stock": stock,
     }
+    # 3️⃣ Cargar lista actual de productos
+    productos = guardar_productos()
+    # 4️⃣ Agregar y guardar
     productos.append(nuevo)
     guardar_productos(productos)
-    print("✅ Producto agregado correctamente.")
 
+    print(f"✅ Producto '{nombre}' agregado correctamente.\n")
 
 def listar_productos():
-    productos = leer_productos()
+    productos = guardar_productos()
     if not productos:
         print("⚠️ No hay productos registrados.")
         return
+    
     print("\n=== LISTA DE PRODUCTOS ===")
     for p in productos:
         print(f"ID: {p['id']} | {p['nombre']} - ${p['precio']} | Stock: {p['stock']}")
 
-
 def editar_producto():
-    productos = leer_productos()
+    productos = guardar_productos()
     if not productos:
         print("⚠️ No hay productos para editar.")
         return
@@ -78,43 +64,30 @@ def editar_producto():
 
     for p in productos:
         if p["id"] == id_buscar:
-            print(f"Editando producto: {p['nombre']}")
-            nuevo_nombre = input(f"Nuevo nombre ({p['nombre']}): ").strip() or p["nombre"]
-            try:
-                nuevo_precio = input(f"Nuevo precio ({p['precio']}): ").strip()
-                nuevo_precio = float(nuevo_precio) if nuevo_precio else float(p["precio"])
-                nuevo_stock = input(f"Nuevo stock ({p['stock']}): ").strip()
-                nuevo_stock = int(nuevo_stock) if nuevo_stock else int(p["stock"])
-            except ValueError:
-                print("❌ Datos inválidos.")
-                return
-
-            p.update({"nombre": nuevo_nombre, "precio": nuevo_precio, "stock": nuevo_stock})
+            print(f"\n✏️ Editando producto: {p['nombre']}")
+            p["nombre"] = pedir_texto("Nuevo nombre: ")
+            p["precio"] = pedir_float("Nuevo precio: ")
+            p["stock"] = pedir_int("Nuevo stock: ")
             guardar_productos(productos)
-            print("✅ Producto actualizado.")
+            print("✅ Producto actualizado correctamente.\n")
             return
 
-    print("❌ No se encontró un producto con ese ID.")
-
+    print("❌ No se encontró un producto con ese ID.\n")
 
 def eliminar_producto():
-    productos = leer_productos()
+    """Elimina un producto por ID."""
+    productos = guardar_productos()
     if not productos:
-        print("⚠️ No hay productos para eliminar.")
+        print("⚠️ No hay productos para eliminar.\n")
         return
 
     listar_productos()
-    id_buscar = input("🆔 Ingrese el ID del producto a eliminar: ")
+    id_eliminar = pedir_texto("Ingrese el ID del producto a eliminar: ")
 
-    for p in productos:
-        if p["id"] == id_buscar:
-            confirmar = input(f"¿Eliminar '{p['nombre']}'? (s/n): ").lower()
-            if confirmar == "s":
-                productos.remove(p)
-                guardar_productos(productos)
-                print("🗑️ Producto eliminado.")
-            else:
-                print("❎ Operación cancelada.")
-            return
+    productos_actualizados = [p for p in productos if p["id"] != id_eliminar]
 
-    print("❌ No se encontró un producto con ese ID.")
+    if len(productos_actualizados) == len(productos):
+        print("❌ No se encontró un producto con ese ID.\n")
+    else:
+        guardar_productos(productos_actualizados)
+        print("🗑️ Producto eliminado correctamente.\n")

@@ -3,6 +3,7 @@ import os
 import datetime
 from productos import leer_productos, guardar_productos
 from clientes import leer_clientes
+from utils.validaciones import pedir_float, pedir_int, pedir_texto
 
 ARCHIVO_VENTAS = "data/ventas.csv"
 
