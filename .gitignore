@@ -1,0 +1,16 @@
+# Bytecode y cache de Python
+__pycache__/
+*.py[cod]
+
+# Entornos virtuales
+venv/
+env/
+.venv/
+
+# Archivos de editores
+.vscode/
+.idea/
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
