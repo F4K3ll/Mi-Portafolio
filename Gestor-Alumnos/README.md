@@ -17,4 +17,5 @@ Aplicación de consola desarrollada en Python para gestionar una lista de alumno
 
 1. Clonar este repositorio:
    ```bash
-   git clone https://github.com/tu-usuario/gestor-alumnos.git
+   git clone https://github.com/F4K3ll/Mi-Portafolio.git
+   cd Mi-Portafolio/Gestor-Alumnos
