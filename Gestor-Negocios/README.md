@@ -55,8 +55,8 @@ GestorPy/
 
 1. Cloná el repositorio:
    ```bash
-   git clone https://github.com/tuusuario/GestorPy.git
-   cd GestorPy
+   git clone https://github.com/F4K3ll/Mi-Portafolio.git
+   cd Mi-Portafolio/Gestor-Negocios
 
 ---
 
