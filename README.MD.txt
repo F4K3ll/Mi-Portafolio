@@ -1,0 +1,31 @@
+# 📚 Gestor de Alumnos
+
+Aplicación de consola desarrollada en Python para gestionar una lista de alumnos. Permite realizar operaciones básicas como agregar, eliminar, modificar, buscar y visualizar registros.
+
+## 🚀 Tecnologías utilizadas
+- Python 3
+- Programación Orientada a Objetos (POO)
+
+## 🔧 Funcionalidades
+- ➕ Agregar nuevo alumno
+- 🗑️ Eliminar alumno por DNI
+- ✏️ Modificar datos del alumno
+- 🔍 Buscar alumno por DNI
+- 📋 Listar todos los alumnos registrados
+
+## ▶️ Cómo ejecutar el proyecto
+
+1. Clonar este repositorio:
+    ```bash
+    git clone https://github.com/F4K3ll/Mi-Portafolio.git
+    cd Mi-Portafolio/Gestor-Alumnos
+    ```
+
+## 📌 Sobre el proyecto
+
+Desarrollado como práctica personal para aplicar lógica de programación, estructuras de datos y manejo de información en Python.
+
+## 👤 Autor
+
+**Julián Augusto Leguizamón**
+[LinkedIn](https://www.linkedin.com/in/julianaugustoleguizamon) · [GitHub](https://github.com/F4K3ll)
