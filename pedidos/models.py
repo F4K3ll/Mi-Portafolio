@@ -1,4 +1,3 @@
-# pedidos/models.py
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 from django.db import models
@@ -35,6 +34,10 @@ class Pedido(models.Model):
         ("listo", "Listo"),
         ("entregado", "Entregado"),
     ]
+    SIGUIENTE_ESTADO = {
+        "pendiente": "listo",
+        "listo": "entregado",
+    }
 
     cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE)
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
@@ -45,6 +48,21 @@ class Pedido(models.Model):
     def clean(self):
         if self.fecha_entrega and self.fecha_entrega < timezone.now():
             raise ValidationError("La fecha de entrega no puede ser en el pasado.")
+
+    def avanzar(self):
+        """Mueve el pedido al siguiente estado, si corresponde. Devuelve True si cambió."""
+        siguiente = self.SIGUIENTE_ESTADO.get(self.estado)
+        if siguiente:
+            self.estado = siguiente
+            self.save()
+            return True
+        return False
+
+    def siguiente_estado_label(self):
+        siguiente = self.SIGUIENTE_ESTADO.get(self.estado)
+        if not siguiente:
+            return None
+        return dict(self.ESTADO_CHOICES).get(siguiente)
 
     def __str__(self):
         return f"Pedido de {self.cliente} - {self.producto} ({self.get_cantidad_display()})"

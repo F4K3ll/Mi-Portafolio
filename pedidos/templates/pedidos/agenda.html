@@ -1,0 +1,58 @@
+{% extends "pedidos/base.html" %}
+
+{% block content %}
+<h2>Agenda de pedidos</h2>
+
+<form method="get" class="row g-2 align-items-center mb-2">
+    <div class="col-auto">
+        <input type="date" name="fecha" value="{{ fecha|date:'Y-m-d' }}" class="form-control">
+    </div>
+    <div class="col-auto">
+        <button type="submit" class="btn btn-outline-primary">Ver</button>
+    </div>
+</form>
+<p class="text-muted mb-4">Mostrando pedidos del <strong>{{ fecha|date:'d/m/Y' }}</strong></p>
+
+{% if pedidos %}
+<table class="table table-striped align-middle">
+    <thead>
+        <tr>
+            <th>Hora</th>
+            <th>Cliente</th>
+            <th>Producto</th>
+            <th>Cantidad</th>
+            <th>Estado</th>
+            <th>Acción</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for pedido in pedidos %}
+        <tr>
+            <td>{{ pedido.fecha_entrega|date:"H:i" }}</td>
+            <td>{{ pedido.cliente }}</td>
+            <td>{{ pedido.producto }}</td>
+            <td>{{ pedido.get_cantidad_display }}</td>
+            <td>{{ pedido.get_estado_display }}</td>
+            <td>
+                {% if pedido.siguiente_estado_label %}
+                <form method="post" action="{% url 'avanzar_estado' pedido.id %}" class="d-inline">
+                    {% csrf_token %}
+                    <input type="hidden" name="fecha" value="{{ fecha|date:'Y-m-d' }}">
+                    <button type="submit" class="btn btn-sm btn-outline-success">
+                        Marcar {{ pedido.siguiente_estado_label }}
+                    </button>
+                </form>
+                {% else %}
+                <span class="text-muted">—</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>No hay pedidos para este día.</p>
+{% endif %}
+
+<a href="{% url 'nuevo_pedido' %}" class="btn btn-link">+ Cargar nuevo pedido</a>
+{% endblock %}
