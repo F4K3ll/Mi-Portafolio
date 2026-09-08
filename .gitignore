@@ -14,3 +14,7 @@ env/
 # Archivos del sistema
 .DS_Store
 Thumbs.db
+
+# Bases de datos y backups
+db.sqlite3
+backups/
