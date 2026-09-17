@@ -14,6 +14,11 @@ DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
 ALLOWED_HOSTS = []
 
+# PythonAnywhere: el dominio es tuusername.pythonanywhere.com
+PYTHONANYWHERE_DOMAIN = os.environ.get('PYTHONANYWHERE_DOMAIN')
+if PYTHONANYWHERE_DOMAIN:
+    ALLOWED_HOSTS.append(PYTHONANYWHERE_DOMAIN)
+
 # Render define esta variable sola en cada deploy, con el dominio real asignado.
 RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
 if RENDER_EXTERNAL_HOSTNAME:
