@@ -1,18 +1,17 @@
 from datetime import datetime
-
-from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib import messages
+from django.contrib.auth import authenticate
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
 from django.utils import timezone
-import subprocess
-from django.http import HttpResponse
 from django.views.decorators.http import require_http_methods
-from django.views.decorators.csrf import csrf_exempt
 from .forms import PedidoForm
 from .models import Pedido
+from pathlib import Path
+import subprocess
 
-@staff_member_required
+
 def nuevo_pedido(request):
     if request.method == "POST":
         form = PedidoForm(request.POST)
@@ -25,7 +24,6 @@ def nuevo_pedido(request):
     return render(request, "pedidos/nuevo_pedido.html", {"form": form})
 
 
-@staff_member_required
 def agenda(request):
     fecha_str = request.GET.get("fecha")
     if fecha_str:
@@ -40,7 +38,6 @@ def agenda(request):
     return render(request, "pedidos/agenda.html", {"pedidos": pedidos, "fecha": fecha})
 
 
-@staff_member_required
 def avanzar_estado(request, pedido_id):
     pedido = get_object_or_404(Pedido, pk=pedido_id)
     if request.method == "POST":
@@ -51,15 +48,34 @@ def avanzar_estado(request, pedido_id):
         destino += f"?fecha={fecha_str}"
     return redirect(destino)
 
-@staff_member_required
+
 @require_http_methods(["GET"])
 def backup_db_view(request):
-    """Ejecuta el script backup_db.py y devuelve un mensaje."""
+    """Ejecuta el script backup_db.py usando Basic Auth."""
+    # Autenticación básica HTTP desde el encabezado
+    auth_header = request.META.get('HTTP_AUTHORIZATION', '')
+    if not auth_header.startswith('Basic '):
+        return HttpResponse('Autorización básica requerida', status=401,
+                            content_type='text/plain')
+    import base64
     try:
-        # Ruta absoluta al script (ya la sabemos)
-        from pathlib import Path
-        BASE_DIR = Path(__file__).resolve().parent.parent
-        script_path = str(BASE_DIR / "backup_db.py")
+        encoded = auth_header[6:]  # quita 'Basic '
+        decoded = base64.b64decode(encoded).decode('utf-8')
+        username, password = decoded.split(':', 1)
+    except Exception:
+        return HttpResponse('Credenciales inválidas', status=401,
+                            content_type='text/plain')
+
+    # Autenticar usando Django
+    user = authenticate(request, username=username, password=password)
+    if user is None or not user.is_staff:
+        return HttpResponse('Acceso denegado', status=403,
+                            content_type='text/plain')
+
+    # Ejecutar el script
+    BASE_DIR = Path(__file__).resolve().parent.parent
+    script_path = str(BASE_DIR / "backup_db.py")
+    try:
         resultado = subprocess.run(
             ["python", script_path],
             capture_output=True,
@@ -70,7 +86,7 @@ def backup_db_view(request):
             mensaje = "✅ " + resultado.stdout.strip()
             return HttpResponse(mensaje)
         else:
-            error_msg = "❌ Error en el script: " + resultado.stderr.strip()
-            return HttpResponse(error_msg, status=500)
+            return HttpResponse("❌ Error: " + resultado.stderr.strip(),
+                                status=500)
     except Exception as e:
-        return HttpResponse(f"Error inesperado: {e}", status=500)
+        return HttpResponse(f"Error: {e}", status=500)
