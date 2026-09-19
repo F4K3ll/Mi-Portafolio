@@ -1,91 +1,24 @@
 {% extends "pedidos/base.html" %}
-
-{% block title %}Nuevo pedido - Goloso Gelato{% endblock %}
-
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-lg-8">
-        <div class="card shadow-lg border-0">
-            <div class="card-header text-white text-center py-4" style="background: linear-gradient(135deg, #ff69b4 0%, #ff1493 100%);">
-                <h2 class="mb-0">
-                    <i class="bi bi-plus-circle me-2"></i>
-                    Nuevo pedido
-                </h2>
-            </div>
-            <div class="card-body p-4">
-                {% if form.non_field_errors %}
-                <div class="alert alert-danger alert-rounded">
-                    <i class="bi bi-exclamation-triangle me-2"></i>
-                    {% for error in form.non_field_errors %}
-                        {{ error }}
-                    {% endfor %}
-                </div>
-                {% endif %}
+<h2 class="page-title">Nuevo pedido</h2>
 
-                <form method="post" novalidate>
-                    {% csrf_token %}
-                    
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label for="{{ form.cliente.id_for_label }}" class="form-label fw-bold">
-                                <i class="bi bi-person me-1"></i>Cliente
-                            </label>
-                            {{ form.cliente }}
-                            {% if form.cliente.errors %}
-                                <div class="text-danger small mt-1">{{ form.cliente.errors }}</div>
-                            {% endif %}
-                        </div>
+{% if form.non_field_errors %}
+<div class="alert alert-danger">
+    {% for error in form.non_field_errors %}<div>{{ error }}</div>{% endfor %}
+</div>
+{% endif %}
 
-                        <div class="col-md-6">
-                            <label for="{{ form.producto.id_for_label }}" class="form-label fw-bold">
-                                <i class="bi bi-box-seam me-1"></i>Producto
-                            </label>
-                            {{ form.producto }}
-                            {% if form.producto.errors %}
-                                <div class="text-danger small mt-1">{{ form.producto.errors }}</div>
-                            {% endif %}
-                        </div>
-
-                        <div class="col-md-4">
-                            <label for="{{ form.cantidad.id_for_label }}" class="form-label fw-bold">
-                                <i class="bi bi-scale me-1"></i>Cantidad
-                            </label>
-                            {{ form.cantidad }}
-                            {% if form.cantidad.errors %}
-                                <div class="text-danger small mt-1">{{ form.cantidad.errors }}</div>
-                            {% endif %}
-                        </div>
-
-                        <div class="col-md-4">
-                            <label for="{{ form.fecha_entrega.id_for_label }}" class="form-label fw-bold">
-                                <i class="bi bi-calendar-event me-1"></i>Fecha de entrega
-                            </label>
-                            {{ form.fecha_entrega }}
-                            <small class="text-muted d-block">Formato: dd/mm/aaaa</small>
-                            {% if form.fecha_entrega.errors %}
-                                <div class="text-danger small mt-1">{{ form.fecha_entrega.errors }}</div>
-                            {% endif %}
-                        </div>
-
-                        <div class="col-md-4">
-                            <label for="{{ form.estado.id_for_label }}" class="form-label fw-bold">
-                                <i class="bi bi-flag me-1"></i>Estado
-                            </label>
-                            {{ form.estado }}
-                        </div>
-                    </div>
-
-                    <div class="d-flex gap-3 mt-4">
-                        <button type="submit" class="btn btn-primary flex-grow-1 py-2">
-                            <i class="bi bi-check-circle me-2"></i>Guardar pedido
-                        </button>
-                        <a href="{% url 'agenda' %}" class="btn btn-outline-secondary py-2">
-                            <i class="bi bi-x-circle me-2"></i>Cancel
-                        </a>
-                    </div>
-                </form>
-            </div>
+<div class="card-surface" style="max-width: 520px;">
+    <form method="post" novalidate>
+        {% csrf_token %}
+        {% for field in form %}
+        <div class="mb-3">
+            <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+            {{ field }}
+            {% if field.errors %}<div class="text-danger small mt-1">{{ field.errors.0 }}</div>{% endif %}
         </div>
-    </div>
+        {% endfor %}
+        <button type="submit" class="btn btn-primary w-100">Guardar pedido</button>
+    </form>
 </div>
 {% endblock %}
