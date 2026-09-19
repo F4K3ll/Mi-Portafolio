@@ -1,5 +1,6 @@
 from datetime import datetime
 from django.contrib import messages
+from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import authenticate
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render, redirect
@@ -11,7 +12,7 @@ from .models import Pedido
 from pathlib import Path
 import subprocess
 
-
+@staff_member_required
 def nuevo_pedido(request):
     if request.method == "POST":
         form = PedidoForm(request.POST)
@@ -23,7 +24,7 @@ def nuevo_pedido(request):
         form = PedidoForm()
     return render(request, "pedidos/nuevo_pedido.html", {"form": form})
 
-
+@staff_member_required
 def agenda(request):
     fecha_str = request.GET.get("fecha")
     if fecha_str:
