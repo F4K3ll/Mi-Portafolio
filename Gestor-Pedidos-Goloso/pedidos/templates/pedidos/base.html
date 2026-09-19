@@ -13,21 +13,19 @@
 
 <!-- Navbar Moderna -->
 <nav id="main-navbar" class="navbar navbar-expand-lg navbar-dark mb-4">
-    <div class="container">
-        <a class="navbar-brand" href="{% url 'agenda' %}">
-            <i class="bi bi-ice-cream-fill me-2"></i>
-            Goloso Gelato
-        </a>
+    <div class="container d-flex justify-content-between align-items-center">
+        <a class="navbar-brand" href="{% url 'agenda' %}">Goloso Gelato</a>
+        
+        {% if user.is_authenticated %}
         <div class="d-flex align-items-center">
-            {% if user.is_authenticated %}
-                <span class="text-white me-3 small">
-                    <i class="bi bi-person-fill me-1"></i>{{ user.username }}
-                </span>
-                <a href="{% url 'admin:logout' %}" class="btn btn-outline-light btn-sm">
-                    <i class="bi bi-box-arrow-right me-1"></i>Logout
-                </a>
-            {% endif %}
+            <span class="nav-user me-3">
+                <i class="bi bi-person-fill"></i> {{ user.username }}
+            </span>
+            <a href="{% url 'admin:logout' %}" class="btn btn-sm btn-logout">
+                Salir
+            </a>
         </div>
+        {% endif %}
     </div>
 </nav>
 
@@ -58,9 +56,14 @@
 
     if (hostname === '127.0.0.1' || hostname === 'localhost') {
         navbar.style.background = 'linear-gradient(135deg, #0056b3 0%, #003d82 100%)';
-        const devTag = document.createElement('span');
-        devTag.innerHTML = '<small class="ms-2 badge bg-warning text-dark"><i class="bi bi-laptop me-1"></i>MODO LOCAL</small>';
-        navbar.querySelector('.container').appendChild(devTag);
+        
+        // Verificamos que no exista ya para no duplicarlo
+        if (!document.getElementById('dev-badge')) {
+            const devTag = document.createElement('span');
+            devTag.id = 'dev-badge';
+            devTag.innerHTML = '<small class="ms-2 badge bg-warning text-dark"><i class="bi bi-laptop me-1"></i>LOCAL</small>';
+            navbar.querySelector('.container').appendChild(devTag);
+        }
     }
 </script>
 </body>

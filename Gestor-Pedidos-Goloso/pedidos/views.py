@@ -38,7 +38,7 @@ def agenda(request):
     pedidos = Pedido.objects.filter(fecha_entrega__date=fecha).order_by("fecha_entrega")
     return render(request, "pedidos/agenda.html", {"pedidos": pedidos, "fecha": fecha})
 
-
+@staff_member_required
 def avanzar_estado(request, pedido_id):
     pedido = get_object_or_404(Pedido, pk=pedido_id)
     if request.method == "POST":
