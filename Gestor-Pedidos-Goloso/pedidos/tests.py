@@ -65,7 +65,7 @@ class VistasPedidoTests(TestCase):
         self.producto = Producto.objects.create(sabor="Dulce de leche", tipo="helado")
         self.usuario = get_user_model().objects.create_user(
             username="personal_prueba",
-                is_staff=True,
+            is_staff=True,
         )
         self.client.force_login(self.usuario)
 

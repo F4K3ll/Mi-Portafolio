@@ -5,7 +5,10 @@ from django.contrib import messages
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
 from django.utils import timezone
-
+import subprocess
+from django.http import HttpResponse
+from django.views.decorators.http import require_http_methods
+from django.views.decorators.csrf import csrf_exempt
 from .forms import PedidoForm
 from .models import Pedido
 
@@ -48,24 +51,20 @@ def avanzar_estado(request, pedido_id):
         destino += f"?fecha={fecha_str}"
     return redirect(destino)
 
-import subprocess
-from django.http import HttpResponse
-from django.views.decorators.http import require_http_methods
-from django.views.decorators.csrf import csrf_exempt
-from django.contrib.admin.views.decorators import staff_member_required
-
 @staff_member_required
 @require_http_methods(["GET"])
 def backup_db_view(request):
     """Ejecuta el script backup_db.py y devuelve un mensaje."""
     try:
         # Ruta absoluta al script (ya la sabemos)
-        script_path = "/home/F4K3ll/Mi-Portafolio/Gestor-Pedidos-Goloso/backup_db.py"
+        from pathlib import Path
+        BASE_DIR = Path(__file__).resolve().parent.parent
+        script_path = str(BASE_DIR / "backup_db.py")
         resultado = subprocess.run(
             ["python", script_path],
             capture_output=True,
             text=True,
-            cwd="/home/F4K3ll/Mi-Portafolio/Gestor-Pedidos-Goloso"
+            cwd=str(BASE_DIR)
         )
         if resultado.returncode == 0:
             mensaje = "✅ " + resultado.stdout.strip()
