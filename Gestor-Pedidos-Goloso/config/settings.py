@@ -14,7 +14,6 @@ DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
 ALLOWED_HOSTS = []
 
-# PythonAnywhere: el dominio es tuusername.pythonanywhere.com
 PYTHONANYWHERE_DOMAIN = os.environ.get('PYTHONANYWHERE_DOMAIN')
 if PYTHONANYWHERE_DOMAIN:
     ALLOWED_HOSTS.append(PYTHONANYWHERE_DOMAIN)
@@ -26,7 +25,12 @@ if RENDER_EXTERNAL_HOSTNAME:
 
 if DEBUG:
     ALLOWED_HOSTS += ['localhost', '127.0.0.1']
-
+    
+CSRF_TRUSTED_ORIGINS = []
+if RENDER_EXTERNAL_HOSTNAME:
+    CSRF_TRUSTED_ORIGINS.append(f'https://{RENDER_EXTERNAL_HOSTNAME}')
+if PYTHONANYWHERE_DOMAIN:
+    CSRF_TRUSTED_ORIGINS.append(f'https://{PYTHONANYWHERE_DOMAIN}')
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -61,6 +65,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.static',   # ← AGREGAR
             ],
         },
     },
@@ -68,12 +73,11 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-# En tu compu, sin la variable DATABASE_URL configurada, sigue usando el
-# db.sqlite3 de siempre. En Render, esa variable apunta a la base PostgreSQL real.
 DATABASES = {
-    'default': dj_database_url.config(
-        default=f'sqlite:///{BASE_DIR / "db.sqlite3"}'
-    )
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    }
 }
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -90,6 +94,9 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_DIRS = [
+    BASE_DIR / "pedidos" / "static",
+]
 
 if DEBUG:
     STORAGES = {
@@ -109,3 +116,16 @@ MAILERS = {
 }
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# =========================================================================
+# Seguridad para producción (solo se activa cuando DEBUG=False)
+# =========================================================================
+
+if not DEBUG:
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_HSTS_SECONDS = 31536000  # 1 año
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
